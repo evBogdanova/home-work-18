@@ -11,21 +11,18 @@ public class ApiTest {
 
     @Test
     void successfulSingleUserTest() {
-                Spec.request
+        UserData data = Spec.request
                 .when()
                 .get("/users/10")
                 .then()
                 .log().body()
                 .statusCode(200)
-                .body("data.findAll{it.id = 10}.email.flatten()",
-                hasItem("byron.fields@reqres.in"))
-                .body("data.findAll{it.id = 10}.first_name.flatten()",
-                        hasItem("Byron"))
-                .body("data.findAll{it.id = 10}.last_name.flatten()",
-                        hasItem("Fields"))
-                .body("data.findAll{it.id = 10}.avatar.flatten()",
-                        hasItem("https://reqres.in/img/faces/10-image.jpg"));
-   }
+                .extract().as(UserData.class);
+        assertEquals(10, data.getUser().getId());
+        assertEquals("byron.fields@reqres.in", data.getUser().getEmail());
+        assertEquals("Byron", data.getUser().getFirstname());
+        assertEquals("https://reqres.in/img/faces/10-image.jpg", data.getUser().getAvatar());
+    }
 
     @Test
     void unsuccessfulSingleUserTest() {
@@ -39,18 +36,20 @@ public class ApiTest {
 
     @Test
     void successfulListUserTest() {
-                UserData data = Spec.request
+                Spec.request
                 .when()
                 .get("/users?page=2")
                 .then()
                 .log().body()
                 .statusCode(200)
-                .extract().as(UserData.class);
-                assertEquals(7, data.getUser().getId());
-                assertEquals("michael.lawson@reqres.in", data.getUser().getEmail());
-                assertEquals("Michael", data.getUser().getFirstname());
-                assertEquals("Lawson", data.getUser().getLastname());
-                assertEquals("https://reqres.in/img/faces/10-image.jpg", data.getUser().getAvatar());
+                .body("data.findAll{it.id = 7}.email.flatten()",
+                        hasItem("michael.lawson@reqres.in"))
+                .body("data.findAll{it.id = 7}.first_name.flatten()",
+                        hasItem("Michael"))
+                .body("data.findAll{it.id = 7}.last_name.flatten()",
+                        hasItem("Lawson"))
+                .body("data.findAll{it.id = 7}.avatar.flatten()",
+                        hasItem("https://reqres.in/img/faces/7-image.jpg"));
     }
 
     @Test
